@@ -1,9 +1,9 @@
-import { today, dateDiff, daysUntil, yyyyMMDD, dateAdd } from "./date-utils.js";
+import { today, dateDiff, daysUntil, yyyyMMDD, dateAdd } from "./date-utils.ts";
 
 import { IN_PROGRESS, FINISHED, NOT_STARTED } from "./statuses.ts";
 import { getCurrentUserTeamByName } from "./user.ts";
 import { getOngoingProjectsFromTeam } from "./project.ts";
-import { fetchIssuesForProjects } from "./issue.ts";
+import { Issue, fetchIssuesForProjects } from "./issue.ts";
 
 export const getProjectProgress = async (teamName: string) => {
 
@@ -24,6 +24,15 @@ export const getProjectProgress = async (teamName: string) => {
           createdAt,
           description,
           title,
+        }: {
+          id: string,
+          startedAt: string | undefined,
+          assignedTo: string,
+          completedAt: string | undefined,
+          canceledAt: string | undefined
+          createdAt: string | undefined,
+          description: string,
+          title: string
         }) => ({
           id,
           title,
@@ -40,17 +49,17 @@ export const getProjectProgress = async (teamName: string) => {
         })
       );
 
-      const finishedIssues = issuesProgress.filter(issue => issue.completedAt).reduce((finishedIssueCount) => (
+      const finishedIssues = issuesProgress.filter((issue: Issue) => issue.completedAt).reduce((finishedIssueCount: number) => (
         finishedIssueCount + 1
       ), 0)
 
-      const remainingIssues = issuesProgress.filter(issue => !issue.completedAt).reduce((remainingIssueCount) => (
+      const remainingIssues = issuesProgress.filter((issue: Issue) => !issue.completedAt).reduce((remainingIssueCount: number) => (
         remainingIssueCount + 1
       ), 0)
 
       const completionPercentage = Math.round(finishedIssues / (finishedIssues + remainingIssues) * 100)
 
-      const daysToFinishATask = finishedIssues / dateDiff(startedAt, today())
+      const daysToFinishATask = finishedIssues / (dateDiff(startedAt, today()) || 1)
 
       const progress = {
         id,
@@ -73,19 +82,4 @@ export const getProjectProgress = async (teamName: string) => {
 
   return progress
 
-}
-
-export interface Project {
-  id: string,
-  name: string,
-  startedAt: string,
-  updatedAt: string,
-  targetDate: string,
-  // issues: issuesProgress,
-  businessDaysRemaining: number,
-  finishedIssues: number,
-  remainingIssues: number,
-  completionPercentage: number,
-  daysToFinishATask: number,
-  expectedFinishDate: string
 }

@@ -6,7 +6,9 @@ import styles from '../styles/Home.module.css'
 const inter = Inter({ subsets: ['latin'] })
 
 import { getCurrentUser } from './api/user'
-import { Project, getProjectProgress } from './api'
+import { getProjectProgress } from './api'
+import { Issue } from './api/issue'
+import { Project } from './api/project'
 
 export default function Home({ currentUserName, projects }: { currentUserName: string, projects: Project[] }) {
   return (
@@ -46,7 +48,7 @@ export default function Home({ currentUserName, projects }: { currentUserName: s
                 <th>Creation date</th>
                 <th>Elapsed days</th>
               </tr>
-              {project.issues.sort((a, b) => a.status.localeCompare(b.status)).map(({
+              {project.issues.sort((a: Issue, b: Issue) => a.status.localeCompare(b.status)).map(({
                 id,
                 title,
                 startedAt,
@@ -58,7 +60,7 @@ export default function Home({ currentUserName, projects }: { currentUserName: s
                 description,
                 status,
                 daysFromCreation
-              }) => <tr key={id} data-test-id={id}>
+              }: Issue) => <tr key={id} data-test-id={id}>
                   <td>{title}</td>
                   <td>{startedAt}</td>
                   <td>{completedAt}</td>
